@@ -1,12 +1,8 @@
 # i3 config file (v4)
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
-##############################################################################################
-## CUSTOM
-##############################################################################################
-exec_always --no-startup-id "wal -i ~/Pictures/Wal/bg3.png"
-
-##############################################################################################
+# Reset last background 
+exec_always --no-startup-id "sh ~/.fehbg"
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
 set $mod Mod4
@@ -66,6 +62,7 @@ bindsym $mod+F2 exec firefox
 bindsym $mod+F3 exec pcmanfm
 # bindsym $mod+F3 exec ranger
 bindsym $mod+Shift+F3 exec pcmanfm_pkexec
+bindsym $mod+F4 exec thunderbird
 bindsym $mod+F5 exec terminal -e 'mocp'
 bindsym $mod+t exec --no-startup-id pkill compton
 bindsym $mod+Ctrl+t exec --no-startup-id compton -b

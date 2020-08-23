@@ -10,10 +10,11 @@ Plug 'scrooloose/nerdtree'
 Plug 'vim-python/python-syntax'
 call plug#end()
 
-" Small Quality of Life improvements
 " -------------------------------------------
+set nocompatible
 filetype plugin on " Enable plugin loading by filetype
 syntax on
+source $HOME/.config/nvim/themes/solarized.vim " Load solarized theme
 
 set hidden
 set tabstop=2 softtabstop=2 shiftwidth=2
