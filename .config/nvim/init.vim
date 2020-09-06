@@ -1,20 +1,29 @@
 let mapleader = " "
 
 call plug#begin(stdpath('data') . '/plugged')
+" Big boys
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " intellisense
 Plug 'junegunn/fzf', { 'do': { -> fzf#install()}}
 Plug 'junegunn/fzf.vim'
 Plug 'scrooloose/nerdtree'
+Plug 'preservim/nerdcommenter' " TODO rebind for colemak
 Plug 'vimwiki/vimwiki'
-Plug 'mboughaba/i3config.vim'
-Plug 'vim-python/python-syntax'
 Plug 'jooize/vim-colemak'
+Plug 'tpope/vim-surround'
+" Cosmetic
+Plug 'vim-python/python-syntax'
 Plug 'altercation/vim-colors-solarized'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+Plug 'itchyny/lightline.vim'
+Plug 'mengelbrecht/lightline-bufferline'
+" Writing
+Plug 'reedes/vim-lexical'
+Plug 'reedes/vim-pencil'
+Plug 'reedes/vim-textobj-sentence'
+Plug 'junegunn/goyo.vim' " maybe don't use
 call plug#end()
 
-" -------------------------------------------
+" ------------------------------------------- "
+" why doesnt W work immediately?
 set nocompatible
 filetype plugin on " Enable plugin loading by filetype
 
@@ -22,7 +31,6 @@ syntax on
 let g:python_highlight_all = 1 " Python syntax highlighting
 
 colorscheme solarized
-let g:airline_theme='solarized'
 
 set hidden
 set tabstop=2 softtabstop=2 shiftwidth=2
@@ -34,6 +42,8 @@ set undodir=~/.vim/undodir
 set undofile
 
 set number relativenumber " relative line numbering
+set showtabline=2 " forces tabline to be shown
+set noshowmode " mode messages unneccary bc of lightline
 set incsearch " incremental search
 set splitbelow splitright " Splits open at the bottom and right
 set wildmode=longest,list,full " Enable autocompletion
@@ -41,10 +51,46 @@ set wildmode=longest,list,full " Enable autocompletion
 " Disable automatic commenting on newline
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
+let g:pencil#wrapModeDefault = 'soft'
+let g:pencil#autoformat = 1
 
-" Airline
-let g:airline#extensions#tabline#enabled = 1
-let g:airline_section_z = '%l/%L' " current line / total lines
+augroup pencil
+  autocmd!
+  autocmd FileType markdown,mkd,vimwiki call pencil#init()
+																		\ | call lexical#init()
+																		\ | setl spell spl=en_us 
+																		\ | Goyo
+  autocmd FileType text call lexical#init({ 'spell': 0 })
+augroup END
+
+" Vim-surround
+" TODO practice and commit to muscle memory
+let g:surround_no_mappings = 1
+nmap ds <Plug>Dsurround
+nmap ws  <Plug>Csurround
+nmap WS  <Plug>CSurround
+nmap cs  <Plug>Ysurround
+nmap CS  <Plug>YSurround
+nmap css <Plug>Yssurround
+nmap CSs <Plug>YSsurround
+nmap cSS <Plug>YSsurround
+xmap S   <Plug>VSurround
+xmap gS  <Plug>VgSurround
+
+" Lightline
+" TODO customize
+let g:lightline = {
+	\ "colorscheme": 'solarized',
+	\ 'tabline': {
+	\		'left': [ ['buffers'] ]
+	\ },
+	\ 'component_expand': {
+	\		'buffers': 'lightline#bufferline#buffers'
+	\ },
+	\ 'component_type': {
+	\		'buffers': 'tabsel'
+	\ }
+	\ }
 
 " FZF
 " Find file, history, buffers, lines, rg
@@ -54,11 +100,8 @@ nnoremap <leader>fb :Buffers<CR>
 nnoremap <leader>fl :Lines<CR> 
 nnoremap <leader>fg :Rg<CR> 
 
-" Shortcut split navigation
-map <C-h> <C-w>h
-map <C-n> <C-w>n
-map <C-e> <C-w>e
-map <C-i> <C-w>i
+" Use semicolon instead of colon
+map ;  :
 
 " Alt move to switch buffers or drag line
 nnoremap <A-h> :bp<CR>
