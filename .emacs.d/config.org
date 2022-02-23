@@ -1,0 +1,345 @@
+#+TITLE: My Emacs Config
+#+AUTHOR: Lennon Okun
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="/home/lokun/org/style.css" />
+
+* TODO
+
+- tabs weird
+- orgmode weird
+- swap RET w C-RET
+- cant move right from line to next
+- better whitespace binds
+- better file finding like fzf
+- shift moving kind of bad
+- sometimes exit normal mode
+- migrate to ivy
+- counsel-find-file not fuzzy enough
+- sometimes code blocks dont update and show correctly 
+- not normal mode in certain buffer types
+- migrate to org-roam
+- in wayland highlighting is sometimes transparent?
+- highlighting not visible in code blocks
+
+* PERFORMANCE
+
+#+begin_src emacs-lisp
+(setq gc-cons-threshold (* 50 1000 1000))
+#+end_src
+
+* PACKAGE MANAGEMENT
+
+** Setup package.el to work with MELPA
+
+#+begin_src emacs-lisp
+(require 'package)
+
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/")
+															 '("org" . "https://orgmode.org/lpa/"))
+; (package-refresh-contents)
+(package-initialize)
+#+end_src
+
+** Installing use-package
+
+#+begin_src emacs-lisp
+(unless (package-installed-p 'use-package)
+	(package-install 'use-package))
+;; (setq use-package-always-ensure t)
+#+end_src
+
+** Installing general.el
+
+#+begin_src emacs-lisp
+(use-package general
+	:config
+	(general-evil-setup t))
+#+end_src
+
+** Evil Mode
+
+#+begin_src emacs-lisp
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-vsplit-window-right t)
+  (setq evil-split-window-below t)
+  (setq evil-undo-system 'undo-redo)
+  (evil-mode))
+
+(use-package evil-collection
+  :after evil
+  :config
+  (setq evil-collection-mode-list '(dashboard dired ibuffer))
+  (evil-collection-init))
+
+;;	(use-package evil-unimpaired
+;;		:after evil)
+
+(use-package evil-terminal-cursor-changer
+  :hook (tty-setup . evil-terminal-cursor-changer-activate))
+
+(use-package evil-snipe
+  :after evil
+  :config
+  (setq evil-snipe-scope 'whole-visible)
+  (setq evil-snipe-repeat-keys nil)
+  (setq evil-snipe-enable-highlight nil)
+  (setq evil-snipe-enable-incremental-highlight nil))
+#+end_src
+
+** Miscellaneous
+
+#+begin_src emacs-lisp
+(use-package ivy
+	:config
+	(setq ivy-re-builders-alist
+				'((swiper . ivy--regex-plus)
+				(t . ivy--regex-fuzzy)))
+	(ivy-mode 1))
+
+(use-package yasnippet
+	:init
+	(yas-global-mode 1)
+	:general
+	("C-'" 'yas-expand))
+
+(use-package which-key
+	:init
+	(which-key-mode 1))
+
+(use-package doom-modeline
+	:init
+	(doom-modeline-mode 1))
+
+(use-package diminish)
+
+(use-package latex
+	:ensure auctex
+	; :hook (TeX-mode-hook . prettify-symbols-mode)
+	:defer
+	:init
+	(setq TeX-auto-save t)
+	(setq Tex-parse-self t)
+	(setq TeX-PDF-mode t)
+	(setq-default Tex-master nil)
+	;;:general
+	;;(:keymaps 'LaTeX-mode-map
+						;;"C-q C-w" 'preview-document ; for testing
+						;;"SPC m p c" 'preview-clearout-buffer)
+)
+
+(use-package tuareg
+	:defer)
+
+#+end_src
+
+*** TODO change subsript + superscript
+
+* BINDINGS
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+(general-unbind
+  :states '(normal visual operator)
+  "i")
+
+(general-define-key
+	:states '(normal visual)
+	:keymaps 'override
+	;; misc
+	";" 'evil-ex
+	"a" 'evil-visual-char
+	"A" 'evil-visual-line
+	;; write + delete
+	"s" 'evil-insert
+	"S" 'evil-insert-line
+	"t" 'evil-append
+	"T" 'evil-append-line
+	"w" 'evil-change
+	"W" 'evil-change-line
+	"d" 'evil-delete
+	"D" 'evil-delete-line
+	;; zxcv
+	"z" 'evil-undo
+	"Z" 'evil-undo-pop
+	"x" 'evil-delete-char
+	"X" 'evil-delete-whole-line
+	"c" 'evil-yank
+	"C" 'evil-yank-lines ;; TODO doesn't allow for pasting line individually, but Ac does
+	"v" 'evil-paste-after
+	"V" 'evil-paste-before)
+
+(defun window-half-height ()
+	(max 1 (/ (1- (window-height (selected-window))) 2)))
+
+(defun scroll-up-half ()
+	(interactive)
+	(scroll-up (window-half-height)))
+
+(defun scroll-down-half ()
+	(interactive)
+	(scroll-down (window-half-height)))
+
+(general-define-key
+	:states '(normal visual operator)
+	;; movement
+	"m" 'evil-backward-char
+	"M" 'evil-beginning-of-line
+	"n" 'evil-next-line
+	"N" 'scroll-up-half
+	"e" 'evil-previous-line
+	"E" 'scroll-down-half
+	"i" 'evil-forward-char
+	"I" 'evil-end-of-line
+
+	"l" 'evil-backward-word-begin
+	"L" 'evil-backward-WORD-begin
+	"u" 'evil-forward-word-end
+	"U" 'evil-forward-WORD-end
+	"y" 'evil-forward-word-begin
+	"Y" 'evil-forward-WORD-begin
+
+	"f" 'evil-snipe-s
+	"F" 'evil-snipe-S
+	"p" 'evil-find-char
+	"P" 'evil-find-char-backward)
+
+(general-define-key
+	:states 'operator
+	"r w" 'evil-inner-word
+	"r W" 'evil-inner-WORD
+	"r (" 'evil-inner-paren
+	"r [" 'evil-inner-bracket
+	"r {" 'evil-inner-curly
+	"r <" 'evil-inner-angle
+	"r \"" 'evil-inner-double-quote
+	"r '" 'evil-inner-single-quote
+	"r p" 'evil-inner-paragraph
+	"r s" 'evil-inner-sentence)
+
+(general-define-key
+	:states '(normal visual)
+	:keymaps 'override
+	:prefix "SPC"
+	"q" '(save-buffers-kill-emacs :which-key "Quit")
+	"f b" '(ivy-switch-buffer :which-key "Find Buffer")
+	"f f" '(counsel-find-file :which-key "Find File")
+	"f h" '((lambda () (interactive) (counsel-find-file "~")) which-key "Find Home")
+	"f r" '(counsel-recentf :which-key "Find Recent")
+	"f s" '(swiper :which-key "Find Swiper")
+	"h a" '(apropos-variable :which-key "Describe Apropos")
+	"h k" '(describe-key :which-key "Describe Key")
+	"h b" '(describe-bindings :which-key "Describe Bindings")
+	"h v" '(describe-variable :which-key "Describe Variable")
+	"h f" '(describe-function :which-key "Describe Function")
+	"h m" '(describe-mode :which-key "Describe Mode")
+	"b k" '(kill-current-buffer :which-key "Buffer Kill (Current)")
+	"b K" '(kill-buffer :which-key "Buffer Kill")
+	"b p" '(previous-buffer :which-key "Buffer Previous")
+	"b n" '(next-buffer :which-key "Buffer Next")
+	"b w" '(save-buffer :which-key "Buffer Write")
+	"w m" '(windmove-left :which-key "Window Left")
+	"w n" '(windmove-down :which-key "Window Down")
+	"w e" '(windmove-up :which-key "Window Up")
+	"w i" '(windmove-right :which-key "Window Right")
+	"w h" '(evil-window-split :which-key "Window H-Split")
+	"w v" '(evil-window-vsplit :which-key "Window V-Split")
+	"w k" '(evil-window-delete :which-key "Window Delete")
+	"o s" '(org-edit-special :which-key "Org Special")
+	"o r i" '(org-roam-node-insert :which-key "Org Roam Insert")
+	"o r f" '(org-roam-node-find :which-key "Org Roam Find")
+	"o r c" '(org-roam-capture :which-key "Org Roam Capture")
+	"v i" '(text-scale-increase :which-key "Visual Increase")
+	"v d" '(text-scale-decrease :which-key "Visual Decrease"))
+#+end_src
+
+* ORG MODE
+
+#+begin_src emacs-lisp
+(defun dw/org-mode-setup ()
+  (org-indent-mode)
+  (setq evil-auto-indent t)
+  (diminish org-indent-mode))
+
+(use-package org
+  :defer t
+  :hook (org-mode . dw/org-mode-setup)
+  :config
+  (setq org-directory "~/org/"
+        org-agenda-files '("~/org/agenda.org")
+        org-default-notes-file (expand-file-name "notes.org" org-directory)
+        org-src-preserve-indentation nil
+        org-edit-src-content-indentation 0
+        org-src-tab-acts-natively t
+				org-head-include-default-style nil))
+
+(use-package org-roam
+  :after org
+  :init ; not working in time?
+  (setq org-roam-directory (file-truename "~/org/roam/"))
+  (setq org-roam-v2-ack t) ; TODO ?
+  (org-roam-db-autosync-mode))
+
+(general-define-key
+ :states '(normal visual)
+ :keymaps 'override
+ :prefix "SPC"
+ "r t" 'org-roam-buffer-toggle
+ "r f" 'org-roam-node-find
+ "r i" 'org-roam-node-insert)
+
+#+end_src
+
+* GENERAL
+
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1)
+(menu-bar-mode -1)
+(setq scroll-margin 7)
+
+(global-tab-line-mode t)
+(setq tab-line-new-button-show nil)
+(setq tab-line-close-button-show nil)
+(setq tab-line-separator " ")
+
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+			backup-by-copying t
+			version-control t
+			delete-old-versions t
+			kept-new-versions 20
+			kept-old-versions 5)
+
+(global-visual-line-mode t)
+(global-display-line-numbers-mode t)
+(setq display-line-numbers-type 'relative)
+
+(setq-default tab-width 2)
+(setq-default evil-shift-width tab-width)
+(setq-default python-indent-offset tab-width)
+(setq-default sh-basic-offset tab-width)
+(setq-default sh-indentation tab-width)
+
+(set-face-attribute 'default nil
+	:font "Fira Code 12"
+	:weight 'medium)
+
+;; needed for emacsclient
+(add-to-list 'default-frame-alist '(font . "Fira Code 14")) ; ??
+
+(use-package doom-themes
+	:config
+	(setq doom-themes-enable-bold t
+				doom-themes-enable-italic t)
+	(load-theme 'doom-solarized-dark t))
+
+;; transparency
+; (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+; (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+#+end_src
+
+** TODO rice colors further

@@ -1,0 +1,39 @@
+# META
+set shell zsh
+set shellopts '-eu'
+set ifs "\n"
+
+## TODO PREVIEWER
+set previewer 
+
+# COSMETIC
+set scrolloff 10
+
+# KEYBINDS
+map <enter> shell
+
+map n updir
+map e down
+map i up
+map o open
+map E half-down
+map I half-up
+
+cmd trash %set -f; mv $fx ~/.trash
+
+map c copy
+map x cut
+map v paste
+map d trash
+
+map an shell
+map ae shell-pipe
+map ai shell-wait
+map ao shell-async
+
+map r $$SHELL
+map s $$PAGER "$f"
+map t $$EDITOR "$f"
+
+map g glob-select
+map G glob-unselect

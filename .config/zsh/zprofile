@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# environment variables
+export EDITOR=nvim
+export TERMINAL=alacritty
+export BROWSER=firefox
+export PAGER=nvimpager
+export XDG_CONFIG_HOME=~/.config
+export XDG_DATA_HOME=~/.local/share
+export XDG_CACHE_HOME=~/.cache
+
+export LESSHISTFILE=/dev/null
+export HISTCONTROL="ignorespace"
+export GNUPGHOME=$XDG_CONFIG_HOME/gnupg
+export FZF_DEFAULT_COMMAND="fd --hidden"
+export MOZ_ENABLE_WAYLAND=1
+export GDK_BACKEND=wayland
+export QT_QPA_PLATFORM=wayland
+
+# export LIBSEAT_BACKEND=logind
+# export LD_LIBRARY_PATH=/usr/local/lib
+# export XDG_RUNTIME_DIR=/tmp/xdg-runtime-$(id -u)
+# mkdir -p $XDG_RUNTIME_DIR
+
