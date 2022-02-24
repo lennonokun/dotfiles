@@ -1,0 +1,62 @@
+(defcfg
+	;; laptop keyboard
+	input (device-file "/dev/input/event3")
+	output (uinput-sink "KMonad output"
+										 	"/bin/sleep 1")
+	fallthrough true
+	allow-cmd false
+)
+
+;; ALIASES
+(defalias
+	
+	h1A (tap-hold 180	a (layer-toggle layer2))
+	h1B (tap-hold 180 r lsft)
+	h1C (tap-hold 180 i rsft)
+	h1D (tap-hold 180 o (layer-toggle layer2))
+
+	h2A (tap-hold 180 z lctl)
+	h2B (tap-hold 180 x lmet)
+	h2C (tap-hold 180 c lalt)
+	h2D (tap-hold 180 , ralt)
+	h2E (tap-hold 180 . rmet)
+	h2F (tap-hold 180 / rctl)
+	
+	h3A (tap-hold 180	* (layer-toggle layer2))
+	h3B (tap-hold 180 - lsft)
+	h3C (tap-hold 180 { rsft)
+	h3D (tap-hold 180 ' (layer-toggle layer2))
+
+	h4A (tap-hold 180 ` lctl)
+	h4B (tap-hold 180 - lmet)
+	h4C (tap-hold 180 \_ lalt)
+	h4D (tap-hold 180 ] rctl)
+	h4E (tap-hold 180 } rmet)
+	h4F (tap-hold 180 \ ralt)
+)
+
+;; SOURCE
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc					  ralt rctl
+)
+
+;; LAYERS
+(deflayer layer1
+	esc	 f1		f2	 f3		f4	 f5		f6	 f7		f8	 f9		f10	 f11	f12 
+	tab  q    w		 f	  p	 	 b  	j		 l		u		 y		;		 _		_
+	esc  @h1A @h1B s    t	 	 g		m		 n		e	   @h1C @h1D ret	_
+	bspc @h2A @h2B @h2C d		 v	  k	   h	  @h2D @h2E @h2F rsft
+  lctl lmet lalt           spc            caps _ 
+)
+
+(deflayer layer2
+	_	   _		_		 _		_		 _		_		 _		_		 _		_		 _		_
+	_	   1    2		 3		4		 5		6		 7		8	   9		0    _		_
+	_		 @h3A @h3B +		=		 _		_		 \(		[		 @h3C	@h3D ret	_
+	_ 	 @h4A @h4B @h4C \_	 _		_		 \)   @h4D @h4E @h4F rsft
+  _		 _	  _              spc            _		 _
+)
